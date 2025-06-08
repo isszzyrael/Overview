@@ -13,15 +13,13 @@ import {
   mockGrowthData,
   mockAlertsData,
 } from "../mock";
+import { TransactionsStatusChart } from "./transaction-status";
 
 const OverviewPage: React.FC = () => {
-  const [transactionData, ] = useState(
-    mockTransactionBreakdown
-  );
-  const [organizationsData, ] = useState(mockOrganizations);
+  const [transactionData] = useState(mockTransactionBreakdown);
+  const [organizationsData] = useState(mockOrganizations);
   const [growthData] = useState(mockGrowthData);
-  const [alertsData ] = useState(mockAlertsData);
-
+  const [alertsData] = useState(mockAlertsData);
 
   const timePeriodsConfig = {
     defaultPeriod: "Last 30 Days",
@@ -58,13 +56,8 @@ const OverviewPage: React.FC = () => {
       <div className="max-h-screen">
         <div className="">
           <div className="grid grid-cols-1 md:grid-cols-[49.5%_49.5%] gap-4 pb-3">
-            <TransactionBreakdown
-              data={transactionData}
-            />
-            <TopOrganizations
-              data={organizationsData}
-              maxItems={5}
-            />
+            <TransactionBreakdown data={transactionData} />
+            <TopOrganizations data={organizationsData} maxItems={5} />
           </div>
           <div className="py-8">
             <div className="lg:col-span-1 md:col-span-2">
@@ -72,15 +65,12 @@ const OverviewPage: React.FC = () => {
                 data={growthData}
                 timeConfig={timePeriodsConfig}
                 totalOrganizations={604}
-               
               />
             </div>
           </div>
-          <AlertsResolution
-            data={alertsData}
-            timeConfig={timePeriodsConfig}
-          />
+          <AlertsResolution data={alertsData} timeConfig={timePeriodsConfig} />
         </div>
+        <TransactionsStatusChart />
       </div>
     </div>
   );
