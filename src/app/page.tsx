@@ -2,8 +2,6 @@
 
 import OverviewPage from "./contents";
 
-const Overview = () => {
+export default function Page() {
   return <OverviewPage />;
-};
-
-export default Overview;
+}

@@ -6,6 +6,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Icons } from "../component/icons";
 import { mockTransactionBreakdown, TransactionBreakdownData } from "../mock";
 import { useEffect, useState } from "react";
+import type { TooltipItem } from "chart.js";
 
 // Only register Chart.js components in browser environment
 if (typeof window !== "undefined") {
@@ -45,18 +46,18 @@ export const TransactionBreakdown: React.FC<TransactionBreakdownProps> = ({
       legend: { display: false },
       tooltip: {
         callbacks: {
-          label: (context: any) => {
+          label: (context: TooltipItem<"doughnut">) => {
             const label = context.label || "";
-            const value = context.raw || 0;
+            const value = (context.raw as number) || 0;
             const percent = total > 0 ? ((value / total) * 100).toFixed(2) : 0;
-            return `${label}: ${(value)} (${percent}%)`;
+            return `${label}: ${value} (${percent}%)`;
           },
         },
       },
     },
   };
 
-    return (
+  return (
     <div className="text-white p-4 rounded-lg border border-[#2E2E2E]">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg font-medium">Transaction Breakdown</h2>
@@ -78,9 +79,7 @@ export const TransactionBreakdown: React.FC<TransactionBreakdownProps> = ({
             </div>
           )}
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <div className="text-2xl font-semibold text-white">
-              {(total)}
-            </div>
+            <div className="text-2xl font-semibold text-white">{total}</div>
             <div className="text-xs text-gray-400">Transactions</div>
           </div>
         </div>

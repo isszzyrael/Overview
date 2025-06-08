@@ -3,6 +3,8 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { Bar } from "react-chartjs-2";
+import type { TooltipItem } from "chart.js";
+
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -70,7 +72,7 @@ export const AlertsResolution: React.FC<AlertsResolutionProps> = ({
       legend: { display: false },
       tooltip: {
         callbacks: {
-          label: (context: any) => {
+          label: (context: TooltipItem<'bar'>) => {
             const label = context.dataset.label;
             const value = context.parsed.x;
             return `${label}: ${value}%`;
