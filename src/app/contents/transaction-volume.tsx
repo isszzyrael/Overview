@@ -1,40 +1,19 @@
 "use client";
 
 import React from "react";
-import { downloadCSV } from "../utils/download";
 import { mockOrganizations, OrganizationVolume } from "../mock";
 import { Icons } from "../component/icons";
 
 interface TopOrganizationsProps {
   data?: OrganizationVolume[];
-  onDownload?: (data: any) => void;
   maxItems?: number;
 }
 
 export const TopOrganizations: React.FC<TopOrganizationsProps> = ({
   data = mockOrganizations,
-  onDownload,
   maxItems = 5,
 }) => {
   const displayData = data.slice(0, maxItems);
-
-  const handleDownload = () => {
-    const csvData = displayData.map((org) => ({
-      organization: org.name,
-      transactionVolume: org.volume,
-      volumeNumber: org.volumeNumber,
-    }));
-
-    if (onDownload) {
-      onDownload(csvData);
-    } else {
-      downloadCSV(
-        csvData,
-        ["Organization", "Transaction Volume", "Volume Number"],
-        "top-organizations"
-      );
-    }
-  };
 
   return (
     <div className="text-white p-4 rounded-lg border border-[#2E2E2E]">
@@ -43,7 +22,6 @@ export const TopOrganizations: React.FC<TopOrganizationsProps> = ({
           Top {maxItems} Org by Transaction Volume
         </h2>
         <button
-          onClick={handleDownload}
           className="p-1.5 hover:bg-[#2E2E2E] rounded transition-colors cursor-pointer"
           title="Download organizations data as CSV"
         >

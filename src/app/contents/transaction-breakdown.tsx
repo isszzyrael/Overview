@@ -3,7 +3,6 @@
 import React from "react";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { downloadJSON, formatNumber } from "../utils/download";
 import { Icons } from "../component/icons";
 import { mockTransactionBreakdown, TransactionBreakdownData } from "../mock";
 import { useEffect, useState } from "react";
@@ -15,12 +14,10 @@ if (typeof window !== "undefined") {
 
 interface TransactionBreakdownProps {
   data?: TransactionBreakdownData;
-  onDownload?: (data: any) => void;
 }
 
 export const TransactionBreakdown: React.FC<TransactionBreakdownProps> = ({
   data = mockTransactionBreakdown,
-  onDownload,
 }) => {
   const total = data.approved + data.review + data.decline;
   const [isClient, setIsClient] = useState(false);
@@ -52,45 +49,18 @@ export const TransactionBreakdown: React.FC<TransactionBreakdownProps> = ({
             const label = context.label || "";
             const value = context.raw || 0;
             const percent = total > 0 ? ((value / total) * 100).toFixed(2) : 0;
-            return `${label}: ${formatNumber(value)} (${percent}%)`;
+            return `${label}: ${(value)} (${percent}%)`;
           },
         },
       },
     },
   };
 
-  const handleDownload = () => {
-    const exportData = {
-      transactionBreakdown: {
-        approved: data.approved,
-        review: data.review,
-        decline: data.decline,
-        total: total,
-        percentages: {
-          approved:
-            total > 0 ? ((data.approved / total) * 100).toFixed(2) + "%" : "0%",
-          review:
-            total > 0 ? ((data.review / total) * 100).toFixed(2) + "%" : "0%",
-          decline:
-            total > 0 ? ((data.decline / total) * 100).toFixed(2) + "%" : "0%",
-        },
-        exportDate: new Date().toISOString(),
-      },
-    };
-
-    if (onDownload) {
-      onDownload(exportData);
-    } else {
-      downloadJSON(exportData, "transaction-breakdown");
-    }
-  };
-
-  return (
+    return (
     <div className="text-white p-4 rounded-lg border border-[#2E2E2E]">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg font-medium">Transaction Breakdown</h2>
         <button
-          onClick={handleDownload}
           className="p-1.5 hover:bg-[#2E2E2E] rounded transition-colors cursor-pointer"
           title="Download transaction breakdown data"
         >
@@ -109,7 +79,7 @@ export const TransactionBreakdown: React.FC<TransactionBreakdownProps> = ({
           )}
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
             <div className="text-2xl font-semibold text-white">
-              {formatNumber(total)}
+              {(total)}
             </div>
             <div className="text-xs text-gray-400">Transactions</div>
           </div>

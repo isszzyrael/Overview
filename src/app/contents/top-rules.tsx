@@ -2,65 +2,21 @@
 
 import React from "react";
 import { Icons } from "../component/icons";
-import { useState } from "react";
-import { downloadCSV } from "../utils/download";
 import {
   mockActiveRules,
   ActiveRule,
-  TimePeriodsConfig,
-  timePeriodsConfig,
 } from "../mock";
 
 interface TopActiveRulesProps {
   data?: ActiveRule[];
-  timeConfig?: TimePeriodsConfig;
   maxItems?: number;
-  onDownload?: (data: any) => void;
-  onPeriodChange?: (period: string) => void;
 }
 
 export const TopActiveRules: React.FC<TopActiveRulesProps> = ({
   data = mockActiveRules,
-  timeConfig = timePeriodsConfig,
   maxItems = 5,
-  onDownload,
-  onPeriodChange,
 }) => {
-  const [selectedPeriod, setSelectedPeriod] = useState(
-    timeConfig.defaultPeriod
-  );
   const displayData = data.slice(0, maxItems);
-
-  const handlePeriodChange = (period: string) => {
-    setSelectedPeriod(period);
-    if (onPeriodChange) {
-      onPeriodChange(period);
-    }
-  };
-
-  const handleDownload = () => {
-    const csvData = displayData.map((rule) => ({
-      ruleCode: rule.code,
-      transactionsFlagged: rule.transactions,
-      transactionNumber: rule.transactionNumber,
-      description: rule.description || "",
-    }));
-
-    if (onDownload) {
-      onDownload(csvData);
-    } else {
-      downloadCSV(
-        csvData,
-        [
-          "Rule Code",
-          "Transactions Flagged",
-          "Transaction Number",
-          "Description",
-        ],
-        `top-active-rules-${selectedPeriod}`
-      );
-    }
-  };
 
   return (
     <div className="text-white p-4 rounded-lg border border-[#2E2E2E]">
@@ -68,7 +24,6 @@ export const TopActiveRules: React.FC<TopActiveRulesProps> = ({
         <h2 className="text-lg font-medium">Top {maxItems} Active Rules</h2>
         <div className="flex items-center space-x-2">
           <button
-            onClick={handleDownload}
             className="p-1.5 hover:bg-[#2E2E2E] rounded transition-colors cursor-pointer"
             title="Download active rules data as CSV"
           >

@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { downloadJSON, downloadCSV } from "../utils/download";
 import { useState, useEffect } from "react";
 import { Bar } from "react-chartjs-2";
 import {
@@ -15,16 +14,10 @@ import {
   mockAlertsData,
   AlertsData,
   TimePeriodsConfig,
-  timePeriodsConfig,
   mockActiveRules,
 } from "../mock";
 import { TopActiveRules } from "./top-rules";
 import { Icons } from "../component/icons";
-import { getDateRangeFromTimeFrame } from "../component/time-range";
-import { TimeRange } from "../component/time-range";
-
-const timeFrames = ["All", "1D", "7D", "1M", "3M", "1Y", "Custom"] as const;
-type TimeFrame = (typeof timeFrames)[number];
 
 // Only register Chart.js components in browser environment
 if (typeof window !== "undefined") {
@@ -34,55 +27,20 @@ if (typeof window !== "undefined") {
 interface AlertsResolutionProps {
   data?: AlertsData;
   timeConfig?: TimePeriodsConfig;
-  onDownload?: (data: any) => void;
   onPeriodChange?: (period: string) => void;
 }
 
 export const AlertsResolution: React.FC<AlertsResolutionProps> = ({
   data = mockAlertsData,
-  timeConfig = timePeriodsConfig,
-  onDownload,
-  onPeriodChange,
 }) => {
-  const [selectedPeriod, setSelectedPeriod] = useState(
-    timeConfig.defaultPeriod
-  );
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  const [timeFrame, setTimeFrame] = useState<TimeFrame>("1Y");
-  const [dateError, setDateError] = useState("");
-  const [customDateRange, setCustomDateRange] = useState({ from: "", to: "" });
-  const [shouldFetchCustom, setShouldFetchCustom] = useState(false);
 
-  const [rulesData, setRulesData] = useState(mockActiveRules);
-  const [tempCustomDateRange, setTempCustomDateRange] = useState({
-    from: "",
-    to: "",
-  });
-  const { fromDate, toDate } = getDateRangeFromTimeFrame(
-    timeFrame,
-    timeFrame === "Custom" && shouldFetchCustom
-      ? customDateRange
-      : { from: "", to: "" }
-  );
-  const handleTimeFrameChange = (
-    frame: TimeFrame | ((prev: TimeFrame) => TimeFrame)
-  ) => {
-    const newFrame = typeof frame === "function" ? frame(timeFrame) : frame;
-    setTimeFrame(newFrame);
-    setDateError("");
-
-    if (newFrame === "Custom") {
-      setShouldFetchCustom(false);
-      setTempCustomDateRange({ from: "", to: "" });
-    } else {
-      setShouldFetchCustom(true);
-    }
-  };
+  const [rulesData] = useState(mockActiveRules);
 
   const chartData = {
     labels: [""],
@@ -126,61 +84,12 @@ export const AlertsResolution: React.FC<AlertsResolutionProps> = ({
     },
   };
 
-  const handleRulesDownload = (data: any) => {
-    console.log("Rules download:", data);
-    downloadCSV(
-      data,
-      [
-        "Rule Code",
-        "Transactions Flagged",
-        "Transaction Number",
-        "Description",
-      ],
-      "top-active-rules"
-    );
-  };
-
-  const handleDownload = () => {
-    const exportData = {
-      alertsAnalysis: {
-        period: selectedPeriod,
-        resolved: data.resolved,
-        unresolved: data.unresolved,
-        exportDate: new Date().toISOString(),
-      },
-    };
-
-    if (onDownload) {
-      onDownload(exportData);
-    } else {
-      downloadJSON(
-        exportData,
-        `alerts-resolved-vs-unresolved-${selectedPeriod}`
-      );
-    }
-  };
-
-  const handlePeriodSelect = (period: string) => {
-    setSelectedPeriod(period);
-    onPeriodChange?.(period);
-  };
-  const handlePeriodChange = (component: string, period: string) => {
-    console.log(`${component} period changed to:`, period);
-  };
-
   return (
     <>
       <div className="flex justify-between items-center">
         <div className="text-text-primary text-[18px] font-medium">Alerts</div>
-        <TimeRange setTimeFrame={handleTimeFrameChange} timeFrame={timeFrame} />
-        {timeFrame === "Custom" && (
-          <div className="flex items-center gap-2 mt-2"></div>
-        )}
-        {timeFrame === "Custom" && dateError && (
-          <div className="text-red-500 text-xs mt-1 ml-2">{dateError}</div>
-        )}
+        <p>Time range</p>
       </div>
-
       <div
         className="flex flex-col md:flex-row gap-4 py-5"
         style={{ height: 370 }}
@@ -191,7 +100,6 @@ export const AlertsResolution: React.FC<AlertsResolutionProps> = ({
               Resolved vs Unresolved Alerts
             </div>
             <button
-              onClick={handleDownload}
               className="p-1.5 hover:bg-[#2E2E2E] rounded transition-colors cursor-pointer"
               title="Download alerts resolution data"
             >
@@ -245,12 +153,7 @@ export const AlertsResolution: React.FC<AlertsResolutionProps> = ({
           <div className="space-y-3 h-fit">
             <TopActiveRules
               data={rulesData}
-              timeConfig={timePeriodsConfig}
               maxItems={5}
-              onDownload={handleRulesDownload}
-              onPeriodChange={(period) =>
-                handlePeriodChange("Active Rules", period)
-              }
             />
           </div>
         </div>

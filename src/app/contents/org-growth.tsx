@@ -4,8 +4,6 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { Line } from "react-chartjs-2";
 import type { ChartOptions } from "chart.js";
-import { TimeRange } from "../component/time-range";
-import { getDateRangeFromTimeFrame } from "../component/time-range";
 
 import {
   Chart as ChartJS,
@@ -21,7 +19,6 @@ import {
   mockGrowthData,
   ChartDataPoint,
   TimePeriodsConfig,
-  timePeriodsConfig,
 } from "../mock";
 
 // Only register Chart.js components in browser environment
@@ -37,69 +34,25 @@ if (typeof window !== "undefined") {
   );
 }
 
-const timeFrames = ["All", "1D", "7D", "1M", "3M", "1Y", "Custom"] as const;
-type TimeFrame = (typeof timeFrames)[number];
-
 interface OrganizationGrowthProps {
   data?: ChartDataPoint[];
   timeConfig?: TimePeriodsConfig;
   totalOrganizations?: number;
-  onDownload?: (data: any) => void;
   onPeriodChange?: (period: string) => void;
 }
 
 export const OrganizationGrowthChart: React.FC<OrganizationGrowthProps> = ({
   data = mockGrowthData,
-  timeConfig = timePeriodsConfig,
   totalOrganizations = 604,
-  onDownload,
-  onPeriodChange,
+
 }) => {
-  const [selectedPeriod, setSelectedPeriod] = useState(
-    timeConfig.defaultPeriod
-  );
+
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  const handlePeriodChange = (period: string) => {
-    setSelectedPeriod(period);
-    if (onPeriodChange) {
-      onPeriodChange(period);
-    }
-  };
-
-  const [dateError, setDateError] = useState("");
-  const [customDateRange, setCustomDateRange] = useState({ from: "", to: "" });
-  const [shouldFetchCustom, setShouldFetchCustom] = useState(false);
-  const [timeFrame, setTimeFrame] = useState<TimeFrame>("1M");
-  const [tempCustomDateRange, setTempCustomDateRange] = useState({
-    from: "",
-    to: "",
-  });
-  const { fromDate, toDate } = getDateRangeFromTimeFrame(
-    timeFrame,
-    timeFrame === "Custom" && shouldFetchCustom
-      ? customDateRange
-      : { from: "", to: "" }
-  );
-
-  const handleTimeFrameChange = (
-    frame: TimeFrame | ((prev: TimeFrame) => TimeFrame)
-  ) => {
-    const newFrame = typeof frame === "function" ? frame(timeFrame) : frame;
-    setTimeFrame(newFrame);
-    setDateError("");
-
-    if (newFrame === "Custom") {
-      setShouldFetchCustom(false);
-      setTempCustomDateRange({ from: "", to: "" });
-    } else {
-      setShouldFetchCustom(true);
-    }
-  };
 
   const chartData = {
     labels: data.map((point) => point.date),
@@ -158,13 +111,7 @@ export const OrganizationGrowthChart: React.FC<OrganizationGrowthProps> = ({
         <div className="text-text-primary text-[18px] font-medium">
           Organization Growth rate
         </div>
-        <TimeRange setTimeFrame={handleTimeFrameChange} timeFrame={timeFrame} />
-        {timeFrame === "Custom" && (
-          <div className="flex items-center gap-2 mt-2"></div>
-        )}
-        {timeFrame === "Custom" && dateError && (
-          <div className="text-red-500 text-sm mt-1 ml-2">{dateError}</div>
-        )}
+        <p>Time Stamp</p>
       </div>
       <div className="grid grid-cols-[70%_30%] gap-5 py-6 max-fit max-h-fit">
         <div className="text-white h-[250px]">
