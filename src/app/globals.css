@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@import "/tsconfig.json";
+
+
 
 :root {
   --background: #ffffff;
